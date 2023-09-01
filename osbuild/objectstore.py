@@ -294,11 +294,14 @@ class HostTree:
         # fixed we can probably remove this bind mount.
         etc_containers = os.path.join(root, "etc", "containers")
         os.makedirs(etc_containers)
+        boot = os.path.join(root, "boot")
+        os.makedirs(boot)
 
         # ensure / is read-only
         mount(root, root)
         mount("/usr", usr)
         mount("/etc/containers", etc_containers)
+        mount("/boot", boot)
 
     @property
     def tree(self) -> os.PathLike:
