@@ -23,10 +23,11 @@ class Mount:
     A single mount with its corresponding options
     """
 
-    def __init__(self, name, info, device, target, options: Dict):
+    def __init__(self, name, info, device, partition, target, options: Dict):
         self.name = name
         self.info = info
         self.device = device
+        self.partition = partition
         self.target = target
         self.options = options
         self.id = self.calc_id()
@@ -66,6 +67,10 @@ class MountManager:
             # mountinfo to try to canonicalize paths for mounts.
             # https://github.com/osbuild/osbuild/issues/1492
             source = os.path.join('/dev', os.path.basename(source))
+            # If the user specified a partition then the filesystem to
+            # mount is actually on a partition of the disk.
+            if mount.partition:
+                source = f"{source}p{mount.partition}"
 
         root = os.fspath(self.root)
 
