@@ -59,6 +59,13 @@ class MountManager:
     def mount(self, mount: Mount) -> Dict:
 
         source = self.devices.device_abspath(mount.device)
+        if source is not None:
+            # Adjust the source path to just have /dev in front (i.e. /dev/loop0)
+            # and not be a path to the temporary dev directory that was prepared.
+            # We do this because some tools (like grub2-install) consult
+            # mountinfo to try to canonicalize paths for mounts.
+            # https://github.com/osbuild/osbuild/issues/1492
+            source = os.path.join('/dev', os.path.basename(source))
 
         root = os.fspath(self.root)
 
