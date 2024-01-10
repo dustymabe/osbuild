@@ -32,6 +32,12 @@ SCHEMA_2 = """
     "type": "object",
     "required": ["deployment"],
     "properties": {
+      "source": {
+        "type": "string",
+        "pattern": "^(mount|tree)$",
+        "default": "tree",
+        "description": "The source of the OSTree filesystem tree"
+      },
       "deployment": {
         "type": "object",
         "additionalProperties": false,
@@ -75,17 +81,22 @@ class OSTreeDeploymentMount(mounts.MountService):
     def mount(self, args: Dict):
 
         tree = args["tree"]
+        mountroot = args["root"]
         options = args["options"]
 
 
+        source = options.get("source", "tree")
         deployment = options["deployment"]
         osname = deployment["osname"]
         ref = deployment["ref"]
         serial = deployment.get("serial", 0)
 
-        # The target path where we want the deployment to be mounted
-        # is the root of the tree.
-        target = tree
+        # The user could specify either the tree or mountroot as the
+        # place where we want the deployment to be mounted.
+        if source == "mount":
+            target = mountroot
+        else:
+            target = tree
 
         # create a private mountpoint for the target path, which is
         # needed in order to be able to move the deployment `root`
@@ -118,9 +129,9 @@ class OSTreeDeploymentMount(mounts.MountService):
 
     def umount(self):
         if self.mountpoint:
+            print(f"umounting {self.mountpoint}")
             subprocess.run(["sync", "-f", self.mountpoint],
                            check=self.check)
-
             subprocess.run(["umount", "-R", self.mountpoint],
                            check=self.check)
             self.mountpoint = None
