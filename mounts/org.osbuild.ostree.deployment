@@ -63,7 +63,6 @@ class OSTreeDeploymentMount(mounts.MountService):
     def __init__(self, args):
         super().__init__(args)
 
-        self.tree = None
         self.mountpoint = None
         self.check = False
 
@@ -72,7 +71,6 @@ class OSTreeDeploymentMount(mounts.MountService):
         subprocess.run([
             "mount", "--bind", "--make-private", source, target,
         ], check=True)
-        return target
 
     def mount(self, args: Dict):
 
@@ -89,7 +87,7 @@ class OSTreeDeploymentMount(mounts.MountService):
         # is contained inside tree, since "moving a mount residing
         # under a shared mount is invalid and unsupported."
         #                                              - `mount(8)`
-        self.tree = self.bind_mount(tree, tree)
+        self.bind_mount(tree, tree)
 
         root = ostree.deployment_path(tree, osname, ref, serial)
 
@@ -120,11 +118,6 @@ class OSTreeDeploymentMount(mounts.MountService):
             subprocess.run(["umount", "-R", self.mountpoint],
                            check=self.check)
             self.mountpoint = None
-
-        if self.tree:
-            subprocess.run(["umount", "-R", self.tree],
-                           check=self.check)
-            self.tree = None
 
 
 def main():
