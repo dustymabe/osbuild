@@ -129,7 +129,7 @@ class OSTreeDeploymentMount(mounts.MountService):
 
     def umount(self):
         if self.mountpoint:
-            print(f"umounting {self.mountpoint}")
+            print(f"unmounting {self.mountpoint}")
             subprocess.run(["sync", "-f", self.mountpoint],
                            check=self.check)
             subprocess.run(["umount", "-R", self.mountpoint],

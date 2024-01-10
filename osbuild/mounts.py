@@ -211,7 +211,7 @@ class FileSystemMountService(MountService):
 
         self.sync()
 
-        print(f"umounting {self.mountpoint}")
+        print(f"unmounting {self.mountpoint}")
 
         # We ignore errors here on purpose
         subprocess.run(["umount", self.mountpoint],
