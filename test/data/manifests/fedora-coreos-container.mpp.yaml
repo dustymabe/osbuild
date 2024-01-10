@@ -251,6 +251,30 @@ pipelines:
             partition:
               mpp-format-int: '{image.layout[''EFI-SYSTEM''].partnum}'
             target: /boot/efi
+      - type: org.osbuild.chattr
+        options:
+          immutable: true
+          path: mount://root/
+        devices:
+          disk:
+            type: org.osbuild.loopback
+            options:
+              filename: disk.img
+              partscan: true
+        mounts:
+          - name: root
+            type: org.osbuild.xfs
+            source: disk
+            partition:
+              mpp-format-int: '{image.layout[''root''].partnum}'
+            target: /
+          - type: org.osbuild.ostree.deployment
+            name: ostree.deployment
+            options:
+              source: mount
+              deployment:
+                osname: fedora-coreos
+                ref: ostree/1/1/0
   - name: raw-4k-image
     build: name:build
     stages:
