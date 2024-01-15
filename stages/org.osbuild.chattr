@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 """
-Runs `chattr` to make file/directory immuatble.
-"""
+Runs `chattr` to set file/directory attributes.
 
 import os
 import sys
@@ -14,11 +13,11 @@ import osbuild.api
 SCHEMA_2 = r"""
 "options": {
   "additionalProperties": false,
-  "required": ["path"],
+  "required": ["path", "immutable"],
   "properties": {
     "immutable": {
       "type": "boolean",
-      "description": "Make the file immutable",
+      "description": "Make the file/directory immutable",
       "default": true
     },
     "path": {
@@ -84,9 +83,13 @@ def parse_location(location, args):
 
 def main(tree, options):
   path = options["path"]
+  immutable = options["immutable"]
 
   dst = parse_location(path, args)
-  subprocess.run(["chattr", "+i", dst], check=True)
+  if immutable:
+    subprocess.run(["chattr", "+i", dst], check=True)
+  elif not immutable:
+    subprocess.run(["chattr", "-i", dst], check=True)
   
   return 0
 
