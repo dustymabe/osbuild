@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 """
 Runs `chattr` to set file/directory attributes.
-"""
 
 import os
 import sys
