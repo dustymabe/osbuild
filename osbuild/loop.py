@@ -126,6 +126,12 @@ class Loop:
             if not dir_fd:
                 dir_fd = os.open("/dev", os.O_DIRECTORY)
                 stack.callback(lambda: os.close(dir_fd))
+            # If the loopdev didn't show up for some reason let's
+            # create it manually
+            try:
+                os.stat(self.devname, dir_fd=dir_fd)
+            except FileNotFoundError:
+                self.mknod(dir_fd)
             self.fd = os.open(self.devname, os.O_RDWR, dir_fd=dir_fd)
 
         info = os.stat(self.fd)
