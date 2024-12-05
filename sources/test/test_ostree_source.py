@@ -1,24 +1,30 @@
 #!/usr/bin/python3
 
 import pathlib
+import tempfile
 
+import pytest
+
+from osbuild.testutil import has_executable
 from osbuild.testutil.net import http_serve_directory, https_serve_directory
 from osbuild.util import ostree
 
 SOURCES_NAME = "org.osbuild.ostree"
 
 
+@pytest.mark.skipif(not has_executable("ostree"), reason="need ostree")
 def test_ostree_source_not_exists(tmp_path, sources_service):
     checksum = "sha256:1111111111111111111111111111111111111111111111111111111111111111"
     sources_service.setup({"cache": tmp_path, "options": {}})
     assert not sources_service.exists(checksum, None)
 
 
+@pytest.mark.skipif(not has_executable("ostree"), reason="need ostree")
 def test_ostree_source_exists(tmp_path, sources_service):
     sources_service.setup({"cache": tmp_path, "options": {}})
-    repo = tmp_path / "org.osbuild.ostree" / "repo"
-    commit = ostree.cli("commit", f"--repo={repo}", "--orphan", "/var/empty")
-    assert sources_service.exists("sha256:" + commit.stdout, None)
+    root = tmp_path / "org.osbuild.ostree" / "repo"
+    commit = make_repo(root)
+    assert sources_service.exists("sha256:" + commit, None)
 
 
 def make_test_sources(proto, port, fake_commit, **secrets):
@@ -35,10 +41,12 @@ def make_test_sources(proto, port, fake_commit, **secrets):
 
 
 def make_repo(root):
-    ostree.cli("init", f"--repo={root}")
-    return ostree.cli("commit", f"--repo={root}", "--orphan", "/var/empty").stdout.rstrip()
+    with tempfile.TemporaryDirectory() as empty_tmpdir:
+        ostree.cli("init", f"--repo={root}")
+        return ostree.cli("commit", f"--repo={root}", "--orphan", empty_tmpdir).stdout.rstrip()
 
 
+@pytest.mark.skipif(not has_executable("ostree"), reason="need ostree")
 def test_ostree_pull_plain(tmp_path, sources_service):
     fake_httpd_root = tmp_path / "fake-httpd-root"
     fake_httpd_root.mkdir(exist_ok=True)
@@ -51,6 +59,7 @@ def test_ostree_pull_plain(tmp_path, sources_service):
         assert sources_service.exists("sha256:" + fake_commit, None)
 
 
+@pytest.mark.skipif(not has_executable("ostree"), reason="need ostree")
 def test_ostree_pull_plain_mtls(tmp_path, sources_service, monkeypatch):
     fake_httpd_root = tmp_path / "fake-httpd-root"
     fake_httpd_root.mkdir(exist_ok=True)
