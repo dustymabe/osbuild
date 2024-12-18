@@ -7,6 +7,7 @@ import sys
 import osbuild.api
 
 # The main grub2 configuration file template. Used for UEFI.
+# NOTE: Changes to this should also be applied to the org.osbuild.grub2.iso.legacy stage
 GRUB2_EFI_CFG_TEMPLATE = """
 function load_video {
   insmod efi_gop

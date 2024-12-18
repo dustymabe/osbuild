@@ -50,8 +50,6 @@ RPM:
           - aws/rhel-9.4-ga-x86_64
           - aws/rhel-9.4-ga-aarch64
       - RUNNER:
-          - aws/rhel-9.5-nightly-x86_64
-          - aws/rhel-9.5-nightly-aarch64
           - aws/rhel-9.6-nightly-x86_64
           - aws/rhel-9.6-nightly-aarch64
           - aws/rhel-10.0-nightly-x86_64
@@ -88,7 +86,7 @@ Manifests:
   extends: .terraform
   script:
     - schutzbot/deploy.sh
-    - schutzbot/manifest_tests.sh ${PARALLEL_EXEC}
+    - test/cases/manifest_tests.sh ${PARALLEL_EXEC}
   parallel:
     matrix:
       - PARALLEL_EXEC: ["1/8", "2/8", "3/8", "4/8", "5/8", "6/8", "7/8", "8/8"]
@@ -105,8 +103,8 @@ Manifests:
           - aws/rhel-8.10-ga-aarch64
           - aws/rhel-9.4-ga-x86_64
           - aws/rhel-9.4-ga-aarch64
-          - aws/rhel-9.5-nightly-x86_64
-          - aws/rhel-9.5-nightly-aarch64
+          - aws/rhel-9.6-nightly-x86_64
+          - aws/rhel-9.6-nightly-aarch64
           - aws/rhel-10.0-nightly-x86_64
           - aws/rhel-10.0-nightly-aarch64
         INTERNAL_NETWORK: "true"
